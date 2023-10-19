@@ -1,0 +1,5 @@
+store:
+  file_path: "users1.json"
+
+http:
+  port: 3333
