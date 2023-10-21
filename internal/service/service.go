@@ -2,6 +2,7 @@ package service
 
 import (
 	"log"
+	"refactoring/internal/models"
 	"refactoring/internal/repository"
 	"refactoring/internal/service/cache"
 )
@@ -43,7 +44,12 @@ func (s *Service) Start() error {
 func (s *Service) CreateUser() {
 }
 
-func (s *Service) GetUser(id int) {
+func (s *Service) GetUser(ID string) (*models.User, error) {
+	user, err := s.cache.GetUser(ID)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (s *Service) SearchUsers() {

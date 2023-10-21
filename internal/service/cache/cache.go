@@ -28,9 +28,6 @@ func (c *Cache) GetUser(ID string) (*models.User, error) {
 }
 
 func (c *Cache) AddUsers(userList models.UserList) error {
-	//for _, user := range userList {
-	//	c.cache[user.] = user
-	//}
 	c.mx.Lock()
 	defer c.mx.Unlock()
 	c.cache = userList
