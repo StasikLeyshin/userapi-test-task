@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"fmt"
 	"refactoring/internal/models"
 	"strconv"
 	"sync"
@@ -18,38 +17,58 @@ func NewCache() *Cache {
 
 func (c *Cache) GetUser(id string) (*models.User, error) {
 	user, ok := c.cache[id]
-	fmt.Println(user, id)
 	if !ok {
 		return nil, models.UserNotFound
 	}
+
 	return &user, nil
 }
 
 func (c *Cache) AddUsers(userList models.UserList) error {
 	c.mx.Lock()
 	defer c.mx.Unlock()
+
 	for key, value := range userList {
 		c.cache[key] = value
 	}
+
 	return nil
 }
 
 func (c *Cache) AddUser(user models.User) error {
 	c.mx.Lock()
 	defer c.mx.Unlock()
+
 	id := strconv.Itoa(user.ID)
 	c.cache[id] = user
+
 	return nil
 }
 
 func (c *Cache) UpdateUser(id string, newDisplayName string) error {
 	c.mx.Lock()
 	defer c.mx.Unlock()
+
 	user, err := c.GetUser(id)
 	if err != nil {
 		return err
 	}
+
 	user.DisplayName = newDisplayName
 	c.cache[id] = *user
+
+	return nil
+}
+
+func (c *Cache) DeleteUser(id string) error {
+	c.mx.Lock()
+	defer c.mx.Unlock()
+
+	if _, ok := c.cache[id]; !ok {
+		return models.UserNotFound
+	}
+
+	delete(c.cache, id)
+
 	return nil
 }

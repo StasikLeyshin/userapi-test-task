@@ -7,6 +7,7 @@ import (
 
 var (
 	UserNotFound = errors.New("user_not_found")
+	EmptyValues  = errors.New("empty_values")
 )
 
 type User struct {

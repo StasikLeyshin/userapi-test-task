@@ -46,7 +46,9 @@ func (s *Service) CreateUser(user *models.CreateUserRequest) (*models.User, erro
 	if err != nil {
 		return nil, err
 	}
+
 	_ = s.cache.AddUser(*createUser)
+
 	return createUser, nil
 }
 
@@ -55,15 +57,22 @@ func (s *Service) GetUser(id string) (*models.User, error) {
 	if err == nil {
 		return user, nil
 	}
+
 	user, err = s.userRepository.GetUser(id)
 	if err != nil {
 		return nil, err
 	}
+
 	return user, nil
 }
 
-func (s *Service) SearchUsers() {
+func (s *Service) SearchUsers() (*models.UserStore, error) {
+	users, err := s.userRepository.SearchUsers()
+	if err != nil {
+		return nil, err
+	}
 
+	return users, nil
 }
 
 func (s *Service) UpdateUser(id string, newDisplayName string) (*models.User, error) {
@@ -75,8 +84,20 @@ func (s *Service) UpdateUser(id string, newDisplayName string) (*models.User, er
 	if err != nil {
 		return nil, err
 	}
+
 	return user, nil
 }
 
-func (s *Service) DeleteUser() {
+func (s *Service) DeleteUser(id string) error {
+	err := s.userRepository.DeleteUser(id)
+	if err != nil {
+		return err
+	}
+
+	err = s.cache.DeleteUser(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

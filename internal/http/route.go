@@ -12,7 +12,8 @@ import (
 )
 
 type Config struct {
-	Port int `yaml:"port"`
+	Port  int  `yaml:"port"`
+	Debug bool `yaml:"debug"`
 }
 
 type HttpRouter struct {
@@ -20,6 +21,7 @@ type HttpRouter struct {
 	server *http.Server
 	client *service.Service
 	logger *log.Logger
+	debug  bool
 }
 
 func NewHttpRouter(config Config, client *service.Service, logger *log.Logger) *HttpRouter {
@@ -43,6 +45,7 @@ func NewHttpRouter(config Config, client *service.Service, logger *log.Logger) *
 		},
 		client: client,
 		logger: logger,
+		debug:  config.Debug,
 	}
 
 	r.Route("/api", func(r chi.Router) {

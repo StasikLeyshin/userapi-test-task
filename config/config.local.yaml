@@ -3,3 +3,4 @@ store:
 
 http:
   port: 3333
+  debug: false
