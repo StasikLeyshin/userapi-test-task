@@ -11,7 +11,7 @@ import (
 func main() {
 
 	// Файл с конфигурацией проекта
-	configPath := "config/config.local.yaml"
+	configPath := "config/config.yaml"
 
 	// Создаём логгер
 	logger := startup.NewLogger()
