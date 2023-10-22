@@ -7,7 +7,9 @@ import (
 	"log"
 	"os"
 	"refactoring/internal/models"
+	"strconv"
 	"sync"
+	"time"
 )
 
 type UserRepository struct {
@@ -42,16 +44,100 @@ func (u *UserRepository) GetAllUsers() (models.UserList, error) {
 
 }
 
-func (u *UserRepository) CreateUser() {
+func (u *UserRepository) CreateUser(user *models.CreateUserRequest) (*models.User, error) {
+	u.mx.Lock()
+	defer u.mx.Unlock()
+
+	var userStore models.UserStore
+	file, err := os.ReadFile(u.filePath)
+	if err != nil {
+		return nil, fmt.Errorf("error opening the file: %v", err)
+	}
+
+	err = json.Unmarshal(file, &userStore)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal failed:: %v", err)
+	}
+
+	userStore.Increment++
+
+	newUser := models.User{
+		ID:          userStore.Increment,
+		CreateDate:  time.Now(),
+		DisplayName: user.DisplayName,
+		Email:       user.Email,
+	}
+
+	id := strconv.Itoa(userStore.Increment)
+	userStore.List[id] = newUser
+
+	newUserMarshal, err := json.Marshal(&userStore)
+	if err != nil {
+		return nil, fmt.Errorf("marshal failed: %v", err)
+	}
+
+	err = os.WriteFile(u.filePath, newUserMarshal, fs.ModePerm)
+	if err != nil {
+		return nil, fmt.Errorf("error creating a user: %v", err)
+	}
+	return &newUser, nil
+
 }
 
-func (u *UserRepository) GetUser() {
+func (u *UserRepository) GetUser(ID string) (*models.User, error) {
+	//var user models.User
+	var userStore models.UserStore
+	file, err := os.ReadFile(u.filePath)
+	if err != nil {
+		return nil, fmt.Errorf("error opening the file: %v", err)
+	}
+	err = json.Unmarshal(file, &userStore)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal failed: %v", err)
+	}
+	user, ok := userStore.List[ID]
+	if !ok {
+		return nil, models.UserNotFound
+	}
+	return &user, nil
 }
 
 func (u *UserRepository) SearchUsers() {
 }
 
-func (u *UserRepository) UpdateUser() {
+func (u *UserRepository) UpdateUser(id string, newDisplayName string) (*models.User, error) {
+	u.mx.Lock()
+	defer u.mx.Unlock()
+
+	var userStore models.UserStore
+	file, err := os.ReadFile(u.filePath)
+	if err != nil {
+		return nil, fmt.Errorf("error opening the file: %v", err)
+	}
+
+	err = json.Unmarshal(file, &userStore)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal failed:: %v", err)
+	}
+
+	user, ok := userStore.List[id]
+	if !ok {
+		return nil, models.UserNotFound
+	}
+
+	user.DisplayName = newDisplayName
+	userStore.List[id] = user
+
+	userMarshal, err := json.Marshal(&userStore)
+	if err != nil {
+		return nil, fmt.Errorf("marshal failed: %v", err)
+	}
+
+	err = os.WriteFile(u.filePath, userMarshal, fs.ModePerm)
+	if err != nil {
+		return nil, fmt.Errorf("error creating a user: %v", err)
+	}
+	return &user, nil
 }
 
 func (u *UserRepository) DeleteUser() {

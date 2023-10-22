@@ -1,6 +1,13 @@
 package models
 
-import "time"
+import (
+	"errors"
+	"time"
+)
+
+var (
+	UserNotFound = errors.New("user_not_found")
+)
 
 type User struct {
 	ID          int       `json:"user_id"`

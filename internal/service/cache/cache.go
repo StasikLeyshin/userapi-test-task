@@ -1,13 +1,10 @@
 package cache
 
 import (
-	"errors"
+	"fmt"
 	"refactoring/internal/models"
+	"strconv"
 	"sync"
-)
-
-var (
-	UserNotFound = errors.New("user_not_found")
 )
 
 type Cache struct {
@@ -19,23 +16,40 @@ func NewCache() *Cache {
 	return &Cache{cache: make(map[string]models.User)}
 }
 
-func (c *Cache) GetUser(ID string) (*models.User, error) {
-	user, ok := c.cache[ID]
-	if ok {
-		return &user, nil
+func (c *Cache) GetUser(id string) (*models.User, error) {
+	user, ok := c.cache[id]
+	fmt.Println(user, id)
+	if !ok {
+		return nil, models.UserNotFound
 	}
-	return nil, UserNotFound
+	return &user, nil
 }
 
 func (c *Cache) AddUsers(userList models.UserList) error {
 	c.mx.Lock()
 	defer c.mx.Unlock()
-	c.cache = userList
+	for key, value := range userList {
+		c.cache[key] = value
+	}
 	return nil
 }
 
-func (c *Cache) AddUser(ID string, user models.User) {
+func (c *Cache) AddUser(user models.User) error {
 	c.mx.Lock()
 	defer c.mx.Unlock()
-	c.cache[ID] = user
+	id := strconv.Itoa(user.ID)
+	c.cache[id] = user
+	return nil
+}
+
+func (c *Cache) UpdateUser(id string, newDisplayName string) error {
+	c.mx.Lock()
+	defer c.mx.Unlock()
+	user, err := c.GetUser(id)
+	if err != nil {
+		return err
+	}
+	user.DisplayName = newDisplayName
+	c.cache[id] = *user
+	return nil
 }
