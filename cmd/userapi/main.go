@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	log "github.com/sirupsen/logrus"
 	"refactoring/internal/app"
 	"refactoring/internal/app/startup"
 	"refactoring/internal/http"
@@ -11,25 +10,23 @@ import (
 
 func main() {
 
-	//configPath := os.Getenv("CONFIG_PATH")
-
 	// Файл с конфигурацией проекта
 	configPath := "config/config.local.yaml"
+
+	// Создаём логгер
+	logger := startup.NewLogger()
 
 	// Парсим файл конфигурации
 	config, err := startup.NewConfig(configPath)
 	if err != nil {
-		log.Fatalf("failed to Config %v", err)
+		logger.Fatalf("failed to Config: %v", err)
 	}
-
-	// Создаём логгер
-	logger := startup.NewLogger()
 
 	// Клиент для реализации бизнес-логики
 	client := service.NewService(logger, config.Store.FilePath)
 	err = client.Start()
 	if err != nil {
-		log.Fatalf("failed Start Service: %v", err)
+		logger.Fatalf("failed Start Service: %v", err)
 	}
 
 	// Создаём экземпляр http сервера

@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"os/signal"
 	"syscall"
@@ -38,7 +37,6 @@ func (a *App) Run(ctx context.Context) {
 	}
 
 	<-componentsCtx.Done()
-	fmt.Println("STOP")
 
 	for _, comp := range a.components {
 		err := comp.Stop(componentsCtx)

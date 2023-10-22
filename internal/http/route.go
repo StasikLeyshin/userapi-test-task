@@ -66,7 +66,7 @@ func NewHttpRouter(config Config, client *service.Service, logger *logrus.Logger
 
 func (h *HttpRouter) Start() error {
 	go func() {
-		h.logger.Printf("start http-server")
+		h.logger.Infoln("start http-server")
 		err := h.server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
 			log.Fatalf("fail to serve the server on the port %d", h.port)
@@ -76,6 +76,6 @@ func (h *HttpRouter) Start() error {
 }
 
 func (h *HttpRouter) Stop(ctx context.Context) error {
-	fmt.Println("http router is stopping")
+	h.logger.Infoln("http router is stopping")
 	return h.server.Shutdown(ctx)
 }
