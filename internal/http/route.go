@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/sirupsen/logrus"
 	"log"
 	"net/http"
 	"refactoring/internal/service"
@@ -20,11 +21,11 @@ type HttpRouter struct {
 	port   int
 	server *http.Server
 	client *service.Service
-	logger *log.Logger
+	logger *logrus.Logger
 	debug  bool
 }
 
-func NewHttpRouter(config Config, client *service.Service, logger *log.Logger) *HttpRouter {
+func NewHttpRouter(config Config, client *service.Service, logger *logrus.Logger) *HttpRouter {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -32,10 +33,6 @@ func NewHttpRouter(config Config, client *service.Service, logger *log.Logger) *
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
-
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(time.Now().String()))
-	})
 
 	httpRouter := HttpRouter{
 		port: config.Port,
@@ -48,6 +45,7 @@ func NewHttpRouter(config Config, client *service.Service, logger *log.Logger) *
 		debug:  config.Debug,
 	}
 
+	r.Get("/", httpRouter.getTimeNow)
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/v1", func(r chi.Router) {
 			r.Route("/users", func(r chi.Router) {

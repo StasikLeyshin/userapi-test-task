@@ -1,5 +1,6 @@
 store:
-  file_path: "users1.json"
+  file_path: "users.json"
 
 http:
   port: 3333
+  debug: false

@@ -3,13 +3,13 @@ package app
 import (
 	"context"
 	"fmt"
-	"log"
+	"github.com/sirupsen/logrus"
 	"os/signal"
 	"syscall"
 )
 
 type App struct {
-	logger     *log.Logger
+	logger     *logrus.Logger
 	components []component
 }
 
@@ -18,7 +18,7 @@ type component interface {
 	Stop(ctx context.Context) error
 }
 
-func NewApp(logger *log.Logger, components ...component) *App {
+func NewApp(logger *logrus.Logger, components ...component) *App {
 	return &App{
 		logger:     logger,
 		components: components,

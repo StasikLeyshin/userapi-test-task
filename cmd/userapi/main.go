@@ -2,14 +2,12 @@ package main
 
 import (
 	"context"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"refactoring/internal/app"
 	"refactoring/internal/app/startup"
 	"refactoring/internal/http"
 	"refactoring/internal/service"
 )
-
-const loggerName = "UserApi"
 
 func main() {
 
@@ -25,7 +23,7 @@ func main() {
 	}
 
 	// Создаём логгер
-	logger := startup.NewLogger(loggerName)
+	logger := startup.NewLogger()
 
 	// Клиент для реализации бизнес-логики
 	client := service.NewService(logger, config.Store.FilePath)

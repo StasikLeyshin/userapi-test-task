@@ -3,8 +3,8 @@ package repository
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"io/fs"
-	"log"
 	"os"
 	"refactoring/internal/models"
 	"strconv"
@@ -13,12 +13,12 @@ import (
 )
 
 type UserRepository struct {
-	logger   *log.Logger
+	logger   *logrus.Logger
 	filePath string
 	mx       sync.Mutex
 }
 
-func NewUserRepository(logger *log.Logger, filePath string) *UserRepository {
+func NewUserRepository(logger *logrus.Logger, filePath string) *UserRepository {
 	return &UserRepository{
 		logger:   logger,
 		filePath: filePath,

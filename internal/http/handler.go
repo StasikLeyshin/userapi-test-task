@@ -7,43 +7,16 @@ import (
 	"net/http"
 	"refactoring/internal/models"
 	"reflect"
+	"time"
 )
 
-type ErrorResponse struct {
-	ErrorMessage string `json:"error_message"`
-}
-
-func newError(ErrorMessage string) *ErrorResponse {
-	return &ErrorResponse{
-		ErrorMessage: ErrorMessage,
-	}
-}
-
-func (h *HttpRouter) errInvalidRequest(err error) *ErrorResponse {
-
-	switch {
-
-	case errors.Is(err, models.UserNotFound):
-		return newError(models.UserNotFound.Error())
-
-	case errors.Is(err, models.EmptyValues):
-		return newError(models.EmptyValues.Error())
-
-	case h.debug:
-		return newError(err.Error())
-
-	default:
-		return newError("unknown_error")
-	}
-}
-
-func (h *HttpRouter) writeErrorResponse(w http.ResponseWriter, status int, errorResponse *ErrorResponse) {
-	w.WriteHeader(status)
-
-	err := json.NewEncoder(w).Encode(errorResponse)
+func (h *HttpRouter) getTimeNow(w http.ResponseWriter, r *http.Request) {
+	_, err := w.Write([]byte(time.Now().String()))
 	if err != nil {
 		h.logger.Printf("responseWriter error: %v", err)
+		return
 	}
+
 }
 
 func (h *HttpRouter) searchUsers(w http.ResponseWriter, r *http.Request) {
@@ -187,4 +160,41 @@ func (h *HttpRouter) deleteUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 
 	return
+}
+
+type ErrorResponse struct {
+	ErrorMessage string `json:"error_message"`
+}
+
+func newError(ErrorMessage string) *ErrorResponse {
+	return &ErrorResponse{
+		ErrorMessage: ErrorMessage,
+	}
+}
+
+func (h *HttpRouter) errInvalidRequest(err error) *ErrorResponse {
+
+	switch {
+
+	case errors.Is(err, models.UserNotFound):
+		return newError(models.UserNotFound.Error())
+
+	case errors.Is(err, models.EmptyValues):
+		return newError(models.EmptyValues.Error())
+
+	case h.debug:
+		return newError(err.Error())
+
+	default:
+		return newError("unknown_error")
+	}
+}
+
+func (h *HttpRouter) writeErrorResponse(w http.ResponseWriter, status int, errorResponse *ErrorResponse) {
+	w.WriteHeader(status)
+
+	err := json.NewEncoder(w).Encode(errorResponse)
+	if err != nil {
+		h.logger.Printf("responseWriter error: %v", err)
+	}
 }

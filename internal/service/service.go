@@ -1,19 +1,19 @@
 package service
 
 import (
-	"log"
+	"github.com/sirupsen/logrus"
 	"refactoring/internal/models"
 	"refactoring/internal/repository"
 	"refactoring/internal/service/cache"
 )
 
 type Service struct {
-	logger         *log.Logger
+	logger         *logrus.Logger
 	userRepository *repository.UserRepository
 	cache          *cache.Cache
 }
 
-func NewService(logger *log.Logger, filePath string) *Service {
+func NewService(logger *logrus.Logger, filePath string) *Service {
 	return &Service{
 		logger:         logger,
 		userRepository: repository.NewUserRepository(logger, filePath),
